@@ -113,7 +113,19 @@
   services.qemuGuest.enable = true;
 
   # Multipass runs cloud-init commands over SSH, so the command must be in the PATH.
-  environment.systemPackages = with pkgs; [ gitMinimal curl cloud-init htop jujutsu mise ];
+  environment.systemPackages = with pkgs; [ gitMinimal curl cloud-init htop jujutsu mise jq fzf ripgrep age gnused gnugrep hello tree gh ];
+
+  # Fish is the interactive shell. The login shell stays bash, because Multipass
+  # runs its own commands over SSH with the login shell. Bash starts fish only
+  # for interactive sessions (`bash -c` commands are not changed).
+  programs.fish.enable = true;
+  programs.bash.interactiveShellInit = ''
+    if [[ $(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm) != "fish" && -z ''${BASH_EXECUTION_STRING} ]]
+    then
+      shopt -q login_shell && LOGIN_OPTION='--login' || LOGIN_OPTION=""
+      exec ${pkgs.fish}/bin/fish $LOGIN_OPTION
+    fi
+  '';
 
   # Image size. Each option removes data from the system closure.
   # The flake registry and `nix.nixPath` pin the nixpkgs source in the closure
