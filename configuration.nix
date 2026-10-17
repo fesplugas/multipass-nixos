@@ -119,6 +119,7 @@
   # runs its own commands over SSH with the login shell. Bash starts fish only
   # for interactive sessions (`bash -c` commands are not changed).
   programs.fish.enable = true;
+  programs.fish.interactiveShellInit = "set --global fish_greeting";
   programs.bash.interactiveShellInit = ''
     if [[ $(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm) != "fish" && -z ''${BASH_EXECUTION_STRING} ]]
     then
