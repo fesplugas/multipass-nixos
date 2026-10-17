@@ -113,5 +113,20 @@
   services.qemuGuest.enable = true;
 
   # Multipass runs cloud-init commands over SSH, so the command must be in the PATH.
-  environment.systemPackages = with pkgs; [ git curl cloud-init ];
+  environment.systemPackages = with pkgs; [ gitMinimal curl cloud-init ];
+
+  # Image size. Each option removes data from the system closure.
+  # The flake registry and `nix.nixPath` pin the nixpkgs source in the closure
+  # (about 200 MiB). `nix shell nixpkgs#...` then uses the online registry.
+  nixpkgs.flake.setNixPath = false;
+  nixpkgs.flake.setFlakeRegistry = false;
+  nix.channel.enable = false;
+  documentation.enable = false;
+  documentation.doc.enable = false;
+  documentation.info.enable = false;
+  documentation.man.enable = false;
+  documentation.nixos.enable = false;
+  environment.defaultPackages = lib.mkForce [ ];
+  programs.command-not-found.enable = false;
+  fonts.fontconfig.enable = false;
 }
