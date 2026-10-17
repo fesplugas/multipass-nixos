@@ -113,7 +113,7 @@
   services.qemuGuest.enable = true;
 
   # Multipass runs cloud-init commands over SSH, so the command must be in the PATH.
-  environment.systemPackages = with pkgs; [ gitMinimal curl cloud-init ];
+  environment.systemPackages = with pkgs; [ gitMinimal curl cloud-init htop jujutsu mise ];
 
   # Image size. Each option removes data from the system closure.
   # The flake registry and `nix.nixPath` pin the nixpkgs source in the closure

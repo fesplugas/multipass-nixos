@@ -14,6 +14,13 @@
     {
       nixosConfigurations.multipass = nixos;
 
+      # The running system: the base configuration plus the module that the
+      # `qemu-efi` image variant adds (disk layout and bootloader). Use it with
+      # `nixos-rebuild switch --flake .#multipass-vm` (see bin/).
+      nixosConfigurations.multipass-vm = nixos.extendModules {
+        modules = [ "${nixpkgs}/nixos/modules/virtualisation/disk-image.nix" ];
+      };
+
       # Debug variant: root logs in on the console without a password.
       # Never use it outside local tests.
       nixosConfigurations.multipass-debug = nixos.extendModules {
