@@ -75,6 +75,7 @@
     settings = {
       PasswordAuthentication = false;
       PermitRootLogin = "no";
+      PrintLastLog = false;
       # Multipass retries the login every second until cloud-init installs its
       # key. The failed attempts would get the host banned for a long time.
       PerSourcePenalties = "no";
@@ -134,6 +135,13 @@
   nixpkgs.flake.setNixPath = false;
   nixpkgs.flake.setFlakeRegistry = false;
   nix.channel.enable = false;
+
+  # The base image ships root channel directories. Nix warns about them when
+  # channels are disabled, so systemd-tmpfiles removes them.
+  systemd.tmpfiles.rules = [
+    "R /root/.nix-defexpr/channels - - - - -"
+    "R /nix/var/nix/profiles/per-user/root/channels - - - - -"
+  ];
   documentation.enable = false;
   documentation.doc.enable = false;
   documentation.info.enable = false;
