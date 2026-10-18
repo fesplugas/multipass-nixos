@@ -118,8 +118,39 @@
 
   services.qemuGuest.enable = true;
 
-  # Multipass runs cloud-init commands over SSH, so the command must be in the PATH.
-  environment.systemPackages = with pkgs; [ gitMinimal cloud-init htop jujutsu mise jq fzf ripgrep age gh vim helix redis gcc gnumake cmake pkg-config hivemind overmind tmux ];
+  environment.systemPackages = with pkgs; [
+    # Multipass runs cloud-init commands over SSH, so the command must be in the PATH.
+    cloud-init
+
+    # Editors and version control
+    gitMinimal
+    jujutsu
+    gh
+    vim
+    helix
+
+    # Command line tools
+    age
+    fzf
+    htop
+    jq
+    mise
+    ripgrep
+
+    # Build toolchain for gems with native extensions
+    cmake
+    gcc
+    gnumake
+    pkg-config
+
+    # Process managers (overmind runs each process in a tmux session)
+    hivemind
+    overmind
+    tmux
+
+    # Clients for the services below
+    redis
+  ];
 
   # Redis listens on localhost only, port 6379. The unit is redis-default.service.
   services.redis.servers.default = {
