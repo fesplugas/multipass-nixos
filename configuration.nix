@@ -1,6 +1,13 @@
-{ lib, pkgs, ... }:
+{ lib, pkgs, modulesPath, ... }:
 
 {
+  # The minimal profile disables documentation, fonts, default packages and
+  # command-not-found. The headless profile removes the graphical console options.
+  imports = [
+    "${modulesPath}/profiles/minimal.nix"
+    "${modulesPath}/profiles/headless.nix"
+  ];
+
   system.stateVersion = "26.05";
 
   nix.settings = {
@@ -112,7 +119,7 @@
   services.qemuGuest.enable = true;
 
   # Multipass runs cloud-init commands over SSH, so the command must be in the PATH.
-  environment.systemPackages = with pkgs; [ gitMinimal curl cloud-init htop jujutsu mise jq fzf ripgrep age gnused gnugrep hello tree gh ];
+  environment.systemPackages = with pkgs; [ gitMinimal cloud-init htop jujutsu mise jq fzf ripgrep age gh ];
 
   # Fish is the interactive shell. The login shell stays bash, because Multipass
   # runs its own commands over SSH with the login shell. Bash starts fish only
@@ -140,12 +147,4 @@
     "R /root/.nix-defexpr/channels - - - - -"
     "R /nix/var/nix/profiles/per-user/root/channels - - - - -"
   ];
-  documentation.enable = false;
-  documentation.doc.enable = false;
-  documentation.info.enable = false;
-  documentation.man.enable = false;
-  documentation.nixos.enable = false;
-  environment.defaultPackages = lib.mkForce [ ];
-  programs.command-not-found.enable = false;
-  fonts.fontconfig.enable = false;
 }
