@@ -196,7 +196,9 @@
   # FHS dynamic loader at /lib64, which NixOS does not have. nix-ld provides it.
   # Without nix-ld, mise compiles every tool from source on NixOS.
   programs.nix-ld.enable = true;
-  programs.nix-ld.libraries = with pkgs; [ libyaml ];
+  # Libraries that gems load at runtime with dlopen (ruby-vips loads libvips.so.42
+  # through FFI) must be here, because nix-ld searches only this list.
+  programs.nix-ld.libraries = with pkgs; [ libyaml vips ];
 
   # The precompiled Ruby has Ubuntu paths in its build settings (MKDIR_P is
   # /bin/mkdir, INSTALL is /usr/bin/install, GREP is /usr/bin/grep). NixOS has
