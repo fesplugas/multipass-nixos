@@ -230,6 +230,26 @@
   programs.fish.interactiveShellInit = ''
     set --global fish_greeting
     ${pkgs.mise}/bin/mise activate fish | source
+
+    # Change to the root of the current jj or git repository.
+    function grt
+        # Try jj first (for jj workspaces)
+        set --local repo_root (jj root 2>/dev/null)
+        if test -n "$repo_root"
+            cd $repo_root
+            return 0
+        end
+
+        # Fall back to git
+        set repo_root (git rev-parse --show-toplevel 2>/dev/null)
+        if test -n "$repo_root"
+            cd $repo_root
+            return 0
+        end
+
+        echo "error: repo root could not be found"
+        return 1
+    end
   '';
   programs.bash.interactiveShellInit = ''
     if [[ $(${pkgs.procps}/bin/ps --no-header --pid=$PPID --format=comm) != "fish" && -z ''${BASH_EXECUTION_STRING} ]]
