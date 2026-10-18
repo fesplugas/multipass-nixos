@@ -45,7 +45,6 @@
           diskSize = "auto";
           additionalSpace = "64M";
         };
-        qcow2-uncompressed = nixos.config.system.build.images.qemu-efi;
         qcow2-debug = self.nixosConfigurations.multipass-debug.config.system.build.images.qemu-efi;
         default = self.packages.${system}.qcow2;
       };
