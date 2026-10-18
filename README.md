@@ -22,8 +22,6 @@ multipass exec builder -- mkdir nixos
 multipass transfer flake.nix configuration.nix builder:nixos/
 ```
 
-Do not copy the `.git` directory. Git object files are read-only, so a second copy fails with `Permission denied`. Without `.git`, Nix treats the directory as a plain path flake.
-
 Install Nix in the builder VM:
 
 ```fish
@@ -48,8 +46,6 @@ Copy the image to the Mac:
 ```fish
 multipass transfer builder:nixos/result/nixos-multipass.qcow2 .
 ```
-
-If the file name is different, list the build output with `multipass exec builder -- ls nixos/result`.
 
 ## Launch
 
