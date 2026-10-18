@@ -121,6 +121,12 @@
   # Multipass runs cloud-init commands over SSH, so the command must be in the PATH.
   environment.systemPackages = with pkgs; [ gitMinimal cloud-init htop jujutsu mise jq fzf ripgrep age gh vim helix ];
 
+  # mise downloads precompiled binaries (ruby, node, ...). They expect the
+  # FHS dynamic loader at /lib64, which NixOS does not have. nix-ld provides it.
+  # Without nix-ld, mise compiles every tool from source on NixOS.
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [ libyaml ];
+
   # Fish is the interactive shell. The login shell stays bash, because Multipass
   # runs its own commands over SSH with the login shell. Bash starts fish only
   # for interactive sessions (`bash -c` commands are not changed).
