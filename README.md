@@ -69,3 +69,7 @@ multipass delete --purge builder nixos
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## AI assistance
+
+Claude Code (Anthropic) helped to write this project. The author reviewed and tested the changes.
