@@ -1,19 +1,27 @@
 #!/usr/bin/env bash
 
-set -e
+# Switch the running VM to the configuration in this repository. The script
+# uses `multipass exec`, not SSH. The Multipass daemon holds the SSH key, so
+# the user on this machine cannot log in with `ssh`.
+
+set -euo pipefail
 
 VM_NAME=${VM_NAME:-nixos}
-VM_USER=${VM_USER:-ubuntu}
-VM_IP=$(multipass info "$VM_NAME" --format json | jq --raw-output ".info[\"$VM_NAME\"].ipv4[0]")
+REMOTE_DIR=${REMOTE_DIR:-/tmp/multipass-nixos}
 
-# The IP address and the host key change with every new instance.
-export NIX_SSHOPTS="-o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+cd "$(dirname "$0")/.."
 
-# The VM builds its own system. Only the evaluation runs on this machine.
-# --no-reexec: this machine is not NixOS, so it cannot build a newer nixos-rebuild.
-nixos-rebuild switch \
-  --no-reexec \
-  --target-host $VM_USER@$VM_IP \
-  --build-host $VM_USER@$VM_IP \
-  --elevate sudo \
-  --flake '.#multipass-vm'
+# Copy the working tree, with uncommitted changes, to the VM. The VM builds its
+# own system, so only the source files move. `multipass exec` sends stdin to
+# the remote command. COPYFILE_DISABLE and --no-xattrs stop the macOS tar from
+# adding `._*` files and Apple extended attributes. --touch sets the file times
+# to the VM clock, which can run behind this machine.
+echo "==> Copy the flake to $VM_NAME:$REMOTE_DIR" >&2
+git ls-files --cached --others --exclude-standard -z \
+  | COPYFILE_DISABLE=1 tar --create --no-xattrs --null --files-from=- --file=- \
+  | multipass exec "$VM_NAME" -- bash -c \
+    "rm --recursive --force '$REMOTE_DIR' && mkdir --parents '$REMOTE_DIR' && tar --extract --touch --directory '$REMOTE_DIR' --file=-"
+
+echo "==> Switch $VM_NAME" >&2
+multipass exec "$VM_NAME" -- sudo nixos-rebuild switch \
+  --flake "$REMOTE_DIR#multipass-vm"
