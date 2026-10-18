@@ -69,12 +69,3 @@ Change the files, copy them to the builder VM again with `multipass transfer fla
 ```fish
 multipass delete --purge builder nixos
 ```
-
-## Known risks
-
-This image is not tested yet. Check these points at the first build:
-
-- The attribute `system.build.images.qemu-efi` must exist in nixpkgs 26.05.
-- Multipass can refuse some custom images.
-- If you cannot log in as `ubuntu`, check the cloud-init `default_user` settings in `configuration.nix`.
-- The empty `networking.hostName` lets cloud-init set the hostname. This is not verified.
