@@ -83,14 +83,13 @@
   };
 
   # Like the Ubuntu cloud image, the user exists before the first boot.
-  # cloud-init only adds the key that Multipass sends. The account has no password.
+  # The image has no SSH key. The Multipass daemon makes one key pair and puts
+  # the public key in the cloud-init user-data (`ssh_authorized_keys`).
+  # cloud-init writes it to ~ubuntu/.ssh/authorized_keys at the first boot.
+  # The account has no password.
   users.users.ubuntu = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
-    openssh.authorizedKeys.keys = [
-      # Public key of the local Multipass installation. `multipass shell` uses it.
-      "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDMTjfQGD+CHZK/iJ3aIf7ce4d5MPubvIKI7084oKlrqxYbvAbf2NeOmBAW9Qi/Xi0CcglECXHwbNF5lWX6Qyboq0SklzOZQ2nkbk4ehEWJBKPAAFnUeplYZPJHJWqTslEN06sJxXRwn21FZ82n/DNu2wuysB27A4D2q692Xknzw0JMdhzv6LzVXq/nHA09/K0T803FM36pPG3zgJS4FC0M1+hqhQFlzI4TEdkOk1yF3q0WIYCsUdtbYSGZvTw6gFqVfQIE1EG0p/kZxe4a9ZdwnSVEJ8RzoNpO1FOsi2mUBW8zN/6VOFz1MV3c6/PTExoCQLtlGnzvh8cAkVpAFsr/ ubuntu@localhost"
-    ];
   };
 
   security.sudo.wheelNeedsPassword = false;
