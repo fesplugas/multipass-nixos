@@ -1,4 +1,4 @@
-{ lib, pkgs, modulesPath, ... }:
+{ config, lib, pkgs, modulesPath, ... }:
 
 {
   # The minimal profile disables documentation, fonts, default packages and
@@ -119,13 +119,78 @@
   services.qemuGuest.enable = true;
 
   # Multipass runs cloud-init commands over SSH, so the command must be in the PATH.
-  environment.systemPackages = with pkgs; [ gitMinimal cloud-init htop jujutsu mise jq fzf ripgrep age gh vim helix ];
+  environment.systemPackages = with pkgs; [ gitMinimal cloud-init htop jujutsu mise jq fzf ripgrep age gh vim helix redis gcc gnumake cmake pkg-config hivemind overmind tmux ];
+
+  # Redis listens on localhost only, port 6379. The unit is redis-default.service.
+  services.redis.servers.default = {
+    enable = true;
+    bind = "127.0.0.1";
+    port = 6379;
+  };
+
+  # RabbitMQ listens on localhost only, AMQP on port 5672. The management UI
+  # and API (port 15672) come from the management plugin.
+  services.rabbitmq = {
+    enable = true;
+    listenAddress = "127.0.0.1";
+    managementPlugin.enable = true;
+  };
+
+  # PostgreSQL listens on localhost only, port 5432. The `ubuntu` role is a
+  # superuser and owns a database with the same name, so `psql` works without
+  # arguments. Local connections use peer authentication over the Unix socket.
+  services.postgresql = {
+    enable = true;
+    enableTCPIP = false;
+    ensureDatabases = [ "ubuntu" ];
+    ensureUsers = [
+      {
+        name = "ubuntu";
+        ensureDBOwnership = true;
+        ensureClauses.superuser = true;
+      }
+    ];
+  };
+
+  # Rails apps connect over TCP as `postgres` with the password `postgres`. The
+  # step runs at each start, after the module created the databases and roles,
+  # so it also works on a data directory that exists already (`initialScript`
+  # runs only when the data directory is new). The VM is a development VM and
+  # PostgreSQL accepts TCP connections from localhost only.
+  systemd.services.postgresql.postStart = lib.mkAfter ''
+    ${config.services.postgresql.finalPackage}/bin/psql --no-psqlrc --command "ALTER ROLE postgres WITH PASSWORD 'postgres'"
+  '';
 
   # mise downloads precompiled binaries (ruby, node, ...). They expect the
   # FHS dynamic loader at /lib64, which NixOS does not have. nix-ld provides it.
   # Without nix-ld, mise compiles every tool from source on NixOS.
   programs.nix-ld.enable = true;
   programs.nix-ld.libraries = with pkgs; [ libyaml ];
+
+  # The precompiled Ruby has Ubuntu paths in its build settings (MKDIR_P is
+  # /bin/mkdir, INSTALL is /usr/bin/install, GREP is /usr/bin/grep). NixOS has
+  # only /bin/sh and /usr/bin/env, so `make install` of every gem with a native
+  # extension fails. envfs mounts /bin and /usr/bin and resolves each program
+  # through the PATH of the caller.
+  services.envfs.enable = true;
+
+  # Gems with native extensions (bigdecimal, pg, psych, ...) compile on install.
+  # NixOS has no /usr/include and no /usr/lib, so the compiler looks for headers
+  # and libraries in the dev packages below through these variables.
+  environment.variables =
+    let
+      libs = with pkgs; [ openssl zlib libyaml libffi libpq libssh2 ];
+    in
+    {
+      # mise compiles tools on NixOS unless told otherwise. Use the precompiled
+      # binaries.
+      MISE_ALL_COMPILE = "false";
+      MISE_RUBY_COMPILE = "false";
+
+      C_INCLUDE_PATH = lib.makeSearchPathOutput "dev" "include" libs;
+      LIBRARY_PATH = lib.makeLibraryPath libs;
+      PKG_CONFIG_PATH = lib.makeSearchPathOutput "dev" "lib/pkgconfig" libs;
+    };
 
   # Fish is the interactive shell. The login shell stays bash, because Multipass
   # runs its own commands over SSH with the login shell. Bash starts fish only
