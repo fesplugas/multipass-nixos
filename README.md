@@ -65,3 +65,7 @@ Change the files, copy them to the builder VM again with `multipass transfer fla
 ```fish
 multipass delete --purge builder nixos
 ```
+
+## License
+
+MIT. See [LICENSE](LICENSE).
