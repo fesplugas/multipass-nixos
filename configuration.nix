@@ -119,7 +119,7 @@
   services.qemuGuest.enable = true;
 
   # Multipass runs cloud-init commands over SSH, so the command must be in the PATH.
-  environment.systemPackages = with pkgs; [ gitMinimal cloud-init htop jujutsu mise jq fzf ripgrep age gh ];
+  environment.systemPackages = with pkgs; [ gitMinimal cloud-init htop jujutsu mise jq fzf ripgrep age gh vim helix ];
 
   # Fish is the interactive shell. The login shell stays bash, because Multipass
   # runs its own commands over SSH with the login shell. Bash starts fish only
