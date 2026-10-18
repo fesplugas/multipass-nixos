@@ -33,7 +33,19 @@
       };
 
       packages.${system} = {
-        qcow2 = nixos.config.system.build.images.qemu-efi;
+        # The `qemu-efi` image variant does not expose `additionalSpace` or the
+        # compression, so call the image builder directly. The root partition
+        # grows at the first boot, so the image needs only a small free space.
+        qcow2 = import "${nixpkgs}/nixos/lib/make-disk-image.nix" {
+          inherit (nixpkgs) lib;
+          inherit (self.nixosConfigurations.multipass-vm) config pkgs;
+          baseName = "nixos-multipass";
+          format = "qcow2-compressed";
+          partitionTableType = "efi";
+          diskSize = "auto";
+          additionalSpace = "64M";
+        };
+        qcow2-uncompressed = nixos.config.system.build.images.qemu-efi;
         qcow2-debug = self.nixosConfigurations.multipass-debug.config.system.build.images.qemu-efi;
         default = self.packages.${system}.qcow2;
       };
