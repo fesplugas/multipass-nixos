@@ -96,7 +96,7 @@
   # The account has no password.
   users.users.ubuntu = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "docker" ];
   };
 
   security.sudo.wheelNeedsPassword = false;
@@ -191,6 +191,12 @@
   systemd.services.postgresql.postStart = lib.mkAfter ''
     ${config.services.postgresql.finalPackage}/bin/psql --no-psqlrc --command "ALTER ROLE postgres WITH PASSWORD 'postgres'"
   '';
+
+  # Docker with the Compose plugin (`docker compose`). The nixpkgs docker
+  # package includes the plugin. The ubuntu user is in the `docker` group (see
+  # `users.users.ubuntu`), which gives access to the daemon socket and is equal
+  # to root access on the VM.
+  virtualisation.docker.enable = true;
 
   # mise downloads precompiled binaries (ruby, node, ...). They expect the
   # FHS dynamic loader at /lib64, which NixOS does not have. nix-ld provides it.
