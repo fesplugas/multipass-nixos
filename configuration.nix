@@ -225,6 +225,10 @@
       PKG_CONFIG_PATH = lib.makeSearchPathOutput "dev" "lib/pkgconfig" libs;
     };
 
+  # Installers such as the one of Pi link their command into ~/.local/bin only
+  # when that directory is already in the PATH. NixOS does not add it by default.
+  environment.localBinInPath = true;
+
   # Fish is the interactive shell. The login shell stays bash, because Multipass
   # runs its own commands over SSH with the login shell. Bash starts fish only
   # for interactive sessions (`bash -c` commands are not changed).
