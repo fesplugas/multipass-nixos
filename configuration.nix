@@ -88,7 +88,6 @@
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINyd8VtyBf4AMGVUhYCslTs7z/H1XO675dzYhCJFsp2j fesplugas"
       # Public key of the local Multipass installation. `multipass shell` uses it.
       "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDMTjfQGD+CHZK/iJ3aIf7ce4d5MPubvIKI7084oKlrqxYbvAbf2NeOmBAW9Qi/Xi0CcglECXHwbNF5lWX6Qyboq0SklzOZQ2nkbk4ehEWJBKPAAFnUeplYZPJHJWqTslEN06sJxXRwn21FZ82n/DNu2wuysB27A4D2q692Xknzw0JMdhzv6LzVXq/nHA09/K0T803FM36pPG3zgJS4FC0M1+hqhQFlzI4TEdkOk1yF3q0WIYCsUdtbYSGZvTw6gFqVfQIE1EG0p/kZxe4a9ZdwnSVEJ8RzoNpO1FOsi2mUBW8zN/6VOFz1MV3c6/PTExoCQLtlGnzvh8cAkVpAFsr/ ubuntu@localhost"
     ];
