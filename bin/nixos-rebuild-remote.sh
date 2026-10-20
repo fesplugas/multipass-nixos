@@ -11,14 +11,18 @@ REMOTE_DIR=${REMOTE_DIR:-/tmp/multipass-nixos}
 
 cd "$(dirname "$0")/.."
 
-# Copy the working tree, with uncommitted changes, to the VM. The VM builds its
-# own system, so only the source files move. `multipass exec` sends stdin to
-# the remote command. COPYFILE_DISABLE and --no-xattrs stop the macOS tar from
+# The flake reads only these files: flake.nix, its lock, and the
+# configuration.nix that flake.nix imports. Keep this list in sync with the
+# local imports when the flake gains one. bin/build.sh ships the same set.
+FLAKE_FILES=(flake.nix flake.lock configuration.nix)
+
+# Copy the flake, with uncommitted changes, to the VM. The VM builds its own
+# system, so only the source files move. `multipass exec` sends stdin to the
+# remote command. COPYFILE_DISABLE and --no-xattrs stop the macOS tar from
 # adding `._*` files and Apple extended attributes. --touch sets the file times
 # to the VM clock, which can run behind this machine.
 echo "==> Copy the flake to $VM_NAME:$REMOTE_DIR" >&2
-git ls-files --cached --others --exclude-standard -z \
-  | COPYFILE_DISABLE=1 tar --create --no-xattrs --null --files-from=- --file=- \
+COPYFILE_DISABLE=1 tar --create --no-xattrs --file=- "${FLAKE_FILES[@]}" \
   | multipass exec "$VM_NAME" -- bash -c \
     "rm --recursive --force '$REMOTE_DIR' && mkdir --parents '$REMOTE_DIR' && tar --extract --touch --directory '$REMOTE_DIR' --file=-"
 
