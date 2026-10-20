@@ -1,1 +1,6 @@
 *.qcow2
+
+# The global ignore file (~/.config/git/ignore) hides agent instruction files at
+# the repository root. Repository rules take precedence over the global file, so
+# this negation keeps AGENTS.md versioned.
+!/AGENTS.md
