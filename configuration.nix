@@ -232,6 +232,13 @@
       MISE_ALL_COMPILE = "false";
       MISE_RUBY_COMPILE = "false";
 
+      # The nixpkgs mise is a third-party build with self-update disabled. That
+      # is expected for an image-based install, so hide the update notice and
+      # the "install the official build" hint. Update mise with `nix flake
+      # update` and a rebuild.
+      MISE_DISABLE_UPDATE_WARNING = "true";
+      MISE_DISABLE_HINTS = "optimized_mise_binary";
+
       C_INCLUDE_PATH = lib.makeSearchPathOutput "dev" "include" libs;
       LIBRARY_PATH = lib.makeLibraryPath libs;
       PKG_CONFIG_PATH = lib.makeSearchPathOutput "dev" "lib/pkgconfig" libs;
