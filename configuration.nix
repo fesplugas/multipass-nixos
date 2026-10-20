@@ -136,6 +136,7 @@
 
     # Command line tools
     age
+    bat
     fd
     fzf
     htop
