@@ -136,6 +136,7 @@
 
     # Command line tools
     age
+    fd
     fzf
     htop
     jq
