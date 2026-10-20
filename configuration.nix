@@ -129,6 +129,11 @@
     vim
     helix
 
+    # AI coding agent (built from source with the overlay in flake.nix).
+    # `pi update` cannot update a Nix installation; update the `pi` flake input
+    # and rebuild the image instead.
+    pi
+
     # Command line tools
     age
     fzf
@@ -231,8 +236,8 @@
       PKG_CONFIG_PATH = lib.makeSearchPathOutput "dev" "lib/pkgconfig" libs;
     };
 
-  # Installers such as the one of Pi link their command into ~/.local/bin only
-  # when that directory is already in the PATH. NixOS does not add it by default.
+  # Installers for user tools link their command into ~/.local/bin only when
+  # that directory is already in the PATH. NixOS does not add it by default.
   environment.localBinInPath = true;
 
   # Fish is the interactive shell. The login shell stays bash, because Multipass

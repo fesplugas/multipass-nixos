@@ -1,14 +1,27 @@
 {
   description = "NixOS QCOW2 image for Multipass (aarch64)";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-  outputs = { self, nixpkgs }:
+    # The Pi coding agent builds from source through its official flake. The
+    # flake pins its own nixpkgs, but the overlay below builds Pi with the
+    # nixpkgs of this flake, so `follows` keeps one nixpkgs in the lock.
+    pi.url = "github:earendil-works/pi/stable";
+    pi.inputs.nixpkgs.follows = "nixpkgs";
+    pi.inputs.nixpkgs-darwin-x64.follows = "nixpkgs";
+  };
+
+  outputs = { self, nixpkgs, pi }:
     let
       system = "aarch64-linux";
       nixos = nixpkgs.lib.nixosSystem {
         inherit system;
-        modules = [ ./configuration.nix ];
+        modules = [
+          # Defines pkgs.pi (see the package list in configuration.nix).
+          { nixpkgs.overlays = [ pi.overlays.default ]; }
+          ./configuration.nix
+        ];
       };
     in
     {

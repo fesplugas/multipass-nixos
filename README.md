@@ -4,8 +4,8 @@ A Nix flake that builds a NixOS 26.05 QCOW2 image (aarch64) for Multipass.
 
 ## Files
 
-- `flake.nix`: the flake. It exposes the image as `packages.aarch64-linux.qcow2`.
-- `configuration.nix`: the NixOS configuration. It enables cloud-init, SSH, and flakes.
+- `flake.nix`: the flake. It exposes the image as `packages.aarch64-linux.qcow2` and pulls the Pi coding agent from its official flake.
+- `configuration.nix`: the NixOS configuration. It enables cloud-init, SSH, and flakes, and installs Pi.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ Create the builder VM and copy the project into it:
 ```fish
 multipass launch --name builder --cpus 4 --memory 8G --disk 40G
 multipass exec builder -- mkdir nixos
-multipass transfer flake.nix configuration.nix builder:nixos/
+multipass transfer flake.nix flake.lock configuration.nix builder:nixos/
 ```
 
 Install Nix in the builder VM:
@@ -58,7 +58,7 @@ Multipass uses cloud-init to create the user `ubuntu` and to install your SSH ke
 
 ## Update the image
 
-Change the files, copy them to the builder VM again with `multipass transfer flake.nix configuration.nix builder:nixos/`, and run the build steps. To update nixpkgs, run `nix flake update` in the builder VM and copy `flake.lock` back to the Mac.
+Change the files, copy them to the builder VM again with `multipass transfer flake.nix flake.lock configuration.nix builder:nixos/`, and run the build steps. To update nixpkgs or Pi, run `nix flake update` (or `nix flake update pi`) in the builder VM and copy `flake.lock` back to the Mac.
 
 ## Clean up
 
